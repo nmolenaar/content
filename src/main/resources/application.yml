@@ -1,0 +1,14 @@
+spring:
+  main:
+    web-application-type: REACTIVE
+  r2dbc:
+    username: root
+    password: root
+    url: r2dbc:postgresql://localhost:5432/molenaar
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/molenaar
+    user: root
+    password: root
+    locations: classpath:db/migration
+    clean-disabled: false
