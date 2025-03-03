@@ -58,13 +58,20 @@ jobs:
 
       - name: Collect test results
         run: |
-          TEST_RESULTS=$(cat build/test-results/test/*.xml | grep -oP 'tests="(\d+)"' | sed -e 's/tests="//' -e 's/"//')
+          # Get total tests
+          TEST_RESULTS=$(cat build/test-results/test/*.xml | grep -o 'tests="[0-9]*"' | sed -e 's/tests="//' -e 's/"//' | awk '{sum += $1} END {print sum}')
+          
+          # Get successful tests
+          PASSED_TESTS=$(cat build/test-results/test/*.xml | grep -o 'failures="0"' | wc -l)
+          
           echo "Tests run: $TEST_RESULTS"
+          echo "Tests passed: $PASSED_TESTS"
 
       - name: Update README with test results
         run: |
           echo "## Latest Test Results" >> README.md
           echo "Tests run: $TEST_RESULTS" >> README.md
+          echo "Tests passed: $PASSED_TESTS" >> README.md
 
       - name: Commit changes to README
         run: |
