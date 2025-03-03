@@ -75,8 +75,8 @@ jobs:
       - name: Update README with test results
         run: |
           NEW_RESULTS="## Latest Test Results\n\n"
-          NEW_RESULTS+="**Tests run:** $TEST_RESULTS"
-          NEW_RESULTS+="**Tests passed:** $PASSED_TESTS"
+          NEW_RESULTS+="**Tests run:** $TEST_RESULTS\"
+          NEW_RESULTS+="**Tests passed:** $PASSED_TESTS\"
           NEW_RESULTS+="**Tests failed:** $FAILED_TESTS"
       
           NEW_RESULTS+="### ✅ Passed Tests\n"
