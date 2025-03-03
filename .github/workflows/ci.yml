@@ -75,17 +75,17 @@ jobs:
       - name: Update README with test results
         run: |
           NEW_RESULTS="## Latest Test Results\n\n"
-          NEW_RESULTS+="**Tests run:** $TEST_RESULTS\n"
-          NEW_RESULTS+="**Tests passed:** $PASSED_TESTS\n"
-          NEW_RESULTS+="**Tests failed:** $FAILED_TESTS\n\n"
+          NEW_RESULTS+="**Tests run:** $TEST_RESULTS\"
+          NEW_RESULTS+="**Tests passed:** $PASSED_TESTS\"
+          NEW_RESULTS+="**Tests failed:** $FAILED_TESTS"
           
-          NEW_RESULTS+="### ✅ Passed Tests\n"
+          NEW_RESULTS+="### ✅ Passed Tests\"
           if [[ -s passed_tests.txt ]]; then
             NEW_RESULTS+="$(cat passed_tests.txt)\n"
           else
             NEW_RESULTS+="*No tests passed.*\n"
           fi
-          NEW_RESULTS+="\n### ❌ Failed Tests\n"
+          NEW_RESULTS+="\n### ❌ Failed Tests\"
           if [[ -s failed_tests.txt ]]; then
             NEW_RESULTS+="$(cat failed_tests.txt)\n"
           else
