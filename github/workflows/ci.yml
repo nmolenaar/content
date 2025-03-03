@@ -1,0 +1,51 @@
+name: Java Spring Boot CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 23
+        uses: actions/setup-java@v2
+        with:
+          java-version: '23'
+
+      - name: Set up Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: '8.0'
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+      - name: Collect test results
+        run: |
+          TEST_RESULTS=$(./gradlew test --quiet | grep -oP 'Total tests: \K\d+')
+          echo "Tests run: $TEST_RESULTS"
+
+      - name: Update README with test results
+        run: |
+          echo "## Latest Test Results" > README.md
+          echo "Tests run: $TEST_RESULTS" >> README.md
+
+      - name: Commit changes to README
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          git add README.md
+          git commit -m "Update README with latest test results"
+          git push
