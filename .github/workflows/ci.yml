@@ -9,7 +9,7 @@ on:
       - main
 
 permissions:
-  contents: write 
+  contents: write
 
 jobs:
   build:
@@ -62,10 +62,10 @@ jobs:
 
           PASSED_TESTS=$(grep -o 'failures="0"' build/test-results/test/*.xml | wc -l)
           FAILED_TESTS=$((TEST_RESULTS - PASSED_TESTS))
-      
+          
           PASSED_LIST=$(grep -oP '(?<=<testcase classname=").*?(?=")' build/test-results/test/*.xml | awk '{print "- "$1" ✅"}')
           FAILED_LIST=$(grep -oP '(?<=<testcase classname=").*?(?=")' build/test-results/test/*.xml | grep -B1 '<failure' | awk '{print "- "$1" ❌"}')
-      
+          
           echo "TEST_RESULTS=$TEST_RESULTS" >> $GITHUB_ENV
           echo "PASSED_TESTS=$PASSED_TESTS" >> $GITHUB_ENV
           echo "FAILED_TESTS=$FAILED_TESTS" >> $GITHUB_ENV
@@ -78,7 +78,7 @@ jobs:
           NEW_RESULTS+="**Tests run:** $TEST_RESULTS\"
           NEW_RESULTS+="**Tests passed:** $PASSED_TESTS\"
           NEW_RESULTS+="**Tests failed:** $FAILED_TESTS"
-      
+          
           NEW_RESULTS+="### ✅ Passed Tests\n"
           if [[ -s passed_tests.txt ]]; then
             NEW_RESULTS+="$(cat passed_tests.txt)\"
@@ -87,11 +87,11 @@ jobs:
           fi
           NEW_RESULTS+="\n### ❌ Failed Tests\"
           if [[ -s failed_tests.txt ]]; then
-            NEW_RESULTS+="$(cat failed_tests.txt)\"
+            NEW_RESULTS+="$(cat failed_tests.txt)"
           else
-            NEW_RESULTS+="*No failed tests!* 🎉\"
+            NEW_RESULTS+="*No failed tests!* 🎉"
           fi
-      
+          
           if grep -q "## Latest Test Results" README.md; then
             sed -i '/## Latest Test Results/,$d' README.md
           fi
@@ -103,7 +103,7 @@ jobs:
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           
           git add README.md
-      
+          
           git diff --staged --quiet || git commit -m "Update README with latest test results"
           git push
 
