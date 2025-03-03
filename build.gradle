@@ -39,4 +39,15 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+
+    reports {
+        junitXml {
+            destination = file("$buildDir/test-results/test")
+        }
+        html {
+            destination = null
+        }
+    }
 }
+
+

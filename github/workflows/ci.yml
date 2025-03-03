@@ -34,12 +34,12 @@ jobs:
 
       - name: Collect test results
         run: |
-          TEST_RESULTS=$(./gradlew test --quiet | grep -oP 'Total tests: \K\d+')
+          TEST_RESULTS=$(cat build/test-results/test/*.xml | grep -oP 'tests="(\d+)"' | sed -e 's/tests="//' -e 's/"//')
           echo "Tests run: $TEST_RESULTS"
 
       - name: Update README with test results
         run: |
-          echo "## Latest Test Results" > README.md
+          echo "## Latest Test Results" >> README.md
           echo "Tests run: $TEST_RESULTS" >> README.md
 
       - name: Commit changes to README
@@ -49,3 +49,9 @@ jobs:
           git add README.md
           git commit -m "Update README with latest test results"
           git push
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: build/test-results/test/*.xml  # Adjust path according to where the XML results are stored
