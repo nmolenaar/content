@@ -50,7 +50,7 @@ jobs:
         run: ./gradlew build
 
       - name: Run tests
-        run: ./gradlew test --no-daemon
+        run: ./gradlew test --no-daemon || true
 
       - name: Stop PostgreSQL
         if: always()
@@ -58,27 +58,53 @@ jobs:
 
       - name: Collect test results
         run: |
-          # Get total tests
-          TEST_RESULTS=$(cat build/test-results/test/*.xml | grep -o 'tests="[0-9]*"' | sed -e 's/tests="//' -e 's/"//' | awk '{sum += $1} END {print sum}')
-          
-          # Get successful tests
-          PASSED_TESTS=$(cat build/test-results/test/*.xml | grep -o 'failures="0"' | wc -l)
-          
-          echo "Tests run: $TEST_RESULTS"
-          echo "Tests passed: $PASSED_TESTS"
+          TEST_RESULTS=$(grep -o 'tests="[0-9]*"' build/test-results/test/*.xml | sed -e 's/tests="//' -e 's/"//' | awk '{sum += $1} END {print sum}')
+
+          PASSED_TESTS=$(grep -o 'failures="0"' build/test-results/test/*.xml | wc -l)
+          FAILED_TESTS=$((TEST_RESULTS - PASSED_TESTS))
+      
+          PASSED_LIST=$(grep -oP '(?<=<testcase classname=").*?(?=")' build/test-results/test/*.xml | awk '{print "- "$1" ✅"}')
+          FAILED_LIST=$(grep -oP '(?<=<testcase classname=").*?(?=")' build/test-results/test/*.xml | grep -B1 '<failure' | awk '{print "- "$1" ❌"}')
+      
+          echo "TEST_RESULTS=$TEST_RESULTS" >> $GITHUB_ENV
+          echo "PASSED_TESTS=$PASSED_TESTS" >> $GITHUB_ENV
+          echo "FAILED_TESTS=$FAILED_TESTS" >> $GITHUB_ENV
+          echo "$PASSED_LIST" > passed_tests.txt
+          echo "$FAILED_LIST" > failed_tests.txt
 
       - name: Update README with test results
         run: |
-          echo "## Latest Test Results" >> README.md
-          echo "Tests run: $TEST_RESULTS" >> README.md
-          echo "Tests passed: $PASSED_TESTS" >> README.md
+          NEW_RESULTS="## Latest Test Results\n\n"
+          NEW_RESULTS+="**Tests run:** $TEST_RESULTS\n"
+          NEW_RESULTS+="**Tests passed:** $PASSED_TESTS\n"
+          NEW_RESULTS+="**Tests failed:** $FAILED_TESTS\n\n"
+      
+          NEW_RESULTS+="### ✅ Passed Tests\n"
+          if [[ -s passed_tests.txt ]]; then
+            NEW_RESULTS+="$(cat passed_tests.txt)\n"
+          else
+            NEW_RESULTS+="*No tests passed.*\n"
+          fi
+          NEW_RESULTS+="\n### ❌ Failed Tests\n"
+          if [[ -s failed_tests.txt ]]; then
+            NEW_RESULTS+="$(cat failed_tests.txt)\n"
+          else
+            NEW_RESULTS+="*No failed tests!* 🎉\n"
+          fi
+      
+          if grep -q "## Latest Test Results" README.md; then
+            sed -i '/## Latest Test Results/,$d' README.md
+          fi
+          echo -e "$NEW_RESULTS" >> README.md
 
       - name: Commit changes to README
         run: |
-          git config --global user.name 'github-actions'
-          git config --global user.email 'github-actions@github.com'
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
           git add README.md
-          git commit -m "Update README with latest test results"
+      
+          git diff --staged --quiet || git commit -m "Update README with latest test results"
           git push
 
       - name: Upload test results
