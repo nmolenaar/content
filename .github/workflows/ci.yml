@@ -27,11 +27,31 @@ jobs:
         with:
           gradle-version: '8.0'
 
+      - name: Start PostgreSQL
+        run: |
+          docker run -d \
+            --name postgres \
+            -e POSTGRES_USER=root \
+            -e POSTGRES_PASSWORD=root \
+            -e POSTGRES_DB=molenaar \
+            -p 5432:5432 \
+            postgres:16
+
+      - name: Wait for PostgreSQL
+        run: |
+          while ! nc -z localhost 5432; do
+            sleep 1
+          done
+
       - name: Build with Gradle
         run: ./gradlew build
 
       - name: Run tests
         run: ./gradlew test --no-daemon
+
+      - name: Stop PostgreSQL
+        if: always()
+        run: docker stop postgres && docker rm postgres
 
       - name: Collect test results
         run: |
