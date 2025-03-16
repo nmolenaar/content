@@ -1,14 +1,22 @@
 spring:
   main:
     web-application-type: REACTIVE
-  r2dbc:
-    username: root
-    password: root
-    url: r2dbc:postgresql://localhost:5432/molenaar
-  flyway:
+  datasource:
+    url: jdbc:postgresql://10.10.3.110:5432/molenaar
+    username: postgres
+    password: postgres
+quarkus:
+  datasource:
+    db-kind: postgresql
+    username: postgres
+    password: postgres
+    reactive:
+      url: postgresql://10.10.3.110:5432/molenaar
+      max-size: 20
+hibernate:
+  database:
+    generation: drop-and-create
+  reactive:
     enabled: true
-    url: jdbc:postgresql://localhost:5432/molenaar
-    user: root
-    password: root
-    locations: classpath:db/migration
-    clean-disabled: false
+    sql-load-script: no-file
+    dialect: org.hibernate.dialect.PostgreSQLDialect

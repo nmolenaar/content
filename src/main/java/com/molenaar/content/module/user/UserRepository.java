@@ -1,13 +1,20 @@
 package com.molenaar.content.module.user;
 
-import org.springframework.data.repository.reactive.ReactiveCrudRepository;
-import reactor.core.publisher.Mono;
+import io.smallrye.mutiny.Uni;
+import org.hibernate.reactive.mutiny.Mutiny;
+import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-import java.util.UUID;
+@Repository
+public class UserRepository {
+    private final Mutiny.SessionFactory sessionFactory;
 
-public interface UserRepository extends ReactiveCrudRepository<UserDomain.UserRecord, UUID> {
-    Mono<UserDomain.UserRecord> findFirstByUsername(String username);
+    public UserRepository(Mutiny.SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
+    }
+
+    public Uni<UserDomain.User> findById(Long id) {
+        return sessionFactory.withSession(session ->
+                session.find(UserDomain.User.class, id)
+        );
+    }
 }
-
-

@@ -1,8 +1,6 @@
 package com.molenaar.content;
 
 
-import com.molenaar.content.module.user.UserDomain.UserRecord;
-import com.molenaar.content.module.user.UserService;
 import io.jbock.util.Either;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
